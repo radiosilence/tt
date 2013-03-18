@@ -5,22 +5,27 @@ import sys
 import datetime
 import csv
 
-LOG_FILE = 'tt.csv'
+LOG_FILE = 'log.csv'
 
-# def display_entries(log, last_time):
-#     for 
+def display_entries(log, last_time):
+    with open(log, 'r') as f:
+        c = csv.reader(f)
+        for row in c:
+            print(' - '.join(row))
 
 def add_entry(log, last_time):
     current_time = datetime.datetime.now()
     minutes = round((current_time - last_time).total_seconds() / 60)
     task = input('Enter task: ')
-    c = csv.writer(log)
-    c.writerow([minutes, task])
+    with open(log, 'a') as f:
+        c = csv.writer(f)
+        c.writerow([datetime.date.today(), minutes, task])
     return current_time
 
 
 INPUT_FUNCTIONS = {
     'a': add_entry,
+    'd': display_entries,
 }
 
 
@@ -36,18 +41,17 @@ def get_prompt(input_functions):
     return prompt
 
 
-def main(log_file, input_functions):
+def main(log, input_functions):
     last_time = datetime.datetime.now()
-    if not os.path.exists(log_file):
-        with open(log_file, 'w') as log:
-            c = csv.writer(log)
-            c.writerow(['minutes', 'task'])
-    with open(log_file, 'a') as log:
-        while True:
-            s = input(get_prompt(input_functions))
-            if s == 'x':
-                break
-            last_time = parse_input(s, log, last_time, input_functions)
+    if not os.path.exists(log):
+        with open(log, 'w') as f:
+            c = csv.writer(f)
+            c.writerow(['date', 'minutes', 'task'])
+    while True:
+        s = input(get_prompt(input_functions))
+        if s == 'x':
+            break
+        last_time = parse_input(s, log, last_time, input_functions) or last_time
 
 
 if __name__ == '__main__':
