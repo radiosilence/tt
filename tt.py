@@ -23,7 +23,7 @@ def save_current(log, last_time, current_task):
 
 
 def new_entry(log, last_time, current_task):
-    task = input('Enter task: ')
+    task = input('Enter new task: ')
     return save_current(log, last_time, current_task), task
 
 
@@ -47,7 +47,8 @@ def get_prompt(input_functions):
 
 def main(log, input_functions):
     last_time = datetime.datetime.now()
-    current_task = input('Enter task: ')
+    current_task = input('Enter current task: ')
+    print('Options: [n]ew task, [d]isplay log, e[x]it\n')
     if not os.path.exists(log):
         with open(log, 'w') as f:
             c = csv.writer(f)
