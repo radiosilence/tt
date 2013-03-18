@@ -3,19 +3,19 @@
 import os
 import sys
 import datetime
+import csv
 
 LOG_FILE = 'tt.csv'
+
+# def display_entries(log, last_time):
+#     for 
 
 def add_entry(log, last_time):
     current_time = datetime.datetime.now()
     minutes = round((current_time - last_time).total_seconds() / 60)
     task = input('Enter task: ')
-    if ',' in task:
-        task = '"{}"'.format(task)
-    log.write('{minutes:d},{task}\n'.format(
-        task=task,
-        minutes=int(minutes),
-    ))
+    c = csv.writer(log)
+    c.writerow([minutes, task])
     return current_time
 
 
@@ -40,7 +40,8 @@ def main(log_file, input_functions):
     last_time = datetime.datetime.now()
     if not os.path.exists(log_file):
         with open(log_file, 'w') as log:
-            log.write('minutes,task\n')
+            c = csv.writer(log)
+            c.writerow(['minutes', 'task'])
     with open(log_file, 'a') as log:
         while True:
             s = input(get_prompt(input_functions))
