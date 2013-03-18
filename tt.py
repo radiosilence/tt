@@ -7,31 +7,35 @@ import csv
 
 LOG_FILE = 'log.csv'
 
-def display_entries(log, last_time):
+def display_entries(log, last_time, current_task):
     with open(log, 'r') as f:
         c = csv.reader(f)
         for row in c:
             print(' - '.join(row))
 
-def add_entry(log, last_time):
+def save_current(log, last_time, current_task):
     current_time = datetime.datetime.now()
     minutes = round((current_time - last_time).total_seconds() / 60)
-    task = input('Enter task: ')
     with open(log, 'a') as f:
         c = csv.writer(f)
-        c.writerow([datetime.date.today(), minutes, task])
+        c.writerow([datetime.date.today(), minutes, current_task])
     return current_time
 
 
+def new_entry(log, last_time, current_task):
+    task = input('Enter task: ')
+    return save_current(log, last_time, current_task), task
+
+
 INPUT_FUNCTIONS = {
-    'a': add_entry,
+    'n': new_entry,
     'd': display_entries,
 }
 
 
-def parse_input(input, log, last_time, input_functions):
+def parse_input(input, log, last_time, current_task, input_functions):
     try:
-        return input_functions[input](log, last_time)
+        return input_functions[input](log, last_time, current_task)
     except KeyError:
         print('Unknown action.')
 
@@ -43,6 +47,7 @@ def get_prompt(input_functions):
 
 def main(log, input_functions):
     last_time = datetime.datetime.now()
+    current_task = input('Enter task: ')
     if not os.path.exists(log):
         with open(log, 'w') as f:
             c = csv.writer(f)
@@ -50,8 +55,15 @@ def main(log, input_functions):
     while True:
         s = input(get_prompt(input_functions))
         if s == 'x':
+            save_current(log, last_time, current_task)
             break
-        last_time = parse_input(s, log, last_time, input_functions) or last_time
+        last_time, current_task = parse_input(
+            s,
+            log,
+            last_time,
+            current_task,
+            input_functions
+        ) or (last_time, current_task)
 
 
 if __name__ == '__main__':
